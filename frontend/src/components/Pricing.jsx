@@ -21,9 +21,9 @@ const Pricing = () => {
     }, []);
 
     const defaultTiers = [
-        { name: 'Basic', price: '₹ 13,999 /-', color: 'bg-white/5', priceBg: 'bg-white/10', priceText: 'text-white', accent: 'text-gray-400' },
-        { name: 'Standard', price: '₹ 17,999 /-', color: 'bg-primary/20', priceBg: 'bg-primary', priceText: 'text-white', accent: 'text-primary' },
-        { name: 'Premium', price: '₹ 24,999 /-', color: 'bg-secondary/20', priceBg: 'bg-secondary', priceText: 'text-white', accent: 'text-secondary' }
+        { name: 'Basic', price: '₹ 13,999 /-', originalPrice: '₹ 19,999 /-', color: 'bg-white/5', priceBg: 'bg-white/10', priceText: 'text-white', accent: 'text-gray-400', isActive: true },
+        { name: 'Standard', price: '₹ 17,999 /-', originalPrice: '₹ 24,999 /-', color: 'bg-primary/20', priceBg: 'bg-primary', priceText: 'text-white', accent: 'text-primary', isActive: true },
+        { name: 'Premium', price: '₹ 24,999 /-', originalPrice: '₹ 34,999 /-', color: 'bg-secondary/20', priceBg: 'bg-secondary', priceText: 'text-white', accent: 'text-secondary', isActive: true }
     ];
 
     // Position 0 = Basic, 1 = Standard, 2 = Premium — always enforce correct names by slot
@@ -31,6 +31,8 @@ const Pricing = () => {
     const tiers = plans.length > 0 ? plans.map((plan, idx) => ({
         name: SLOT_NAMES[idx] || plan.name,  // enforce correct name by position
         price: plan.price || defaultTiers[idx]?.price,
+        originalPrice: plan.originalPrice || defaultTiers[idx]?.originalPrice,
+        isActive: plan.isActive !== undefined ? plan.isActive : true,
         color: idx === 1 ? 'bg-primary/20' : (idx === 2 ? 'bg-secondary/20' : 'bg-white/5'),
         priceBg: idx === 1 ? 'bg-primary' : (idx === 2 ? 'bg-secondary' : 'bg-white/10'),
         priceText: 'text-white',
@@ -46,7 +48,7 @@ const Pricing = () => {
     // Helper to render "Check" or the text
     const renderValue = (val, colIdx) => {
         if (!val) return 'N/A';
-        if (val.toLowerCase() === 'check') {
+        if (typeof val === 'string' && val.toLowerCase() === 'check') {
             const colors = ['text-white/40', 'text-primary', 'text-secondary'];
             return <Check size={18} className={colors[colIdx] || 'text-white'} />;
         }
@@ -57,7 +59,7 @@ const Pricing = () => {
         { label: 'Customized design', key: 'customDesign' },
         { label: 'Payment Method Integration', key: 'paymentIntegration' },
         { label: 'Mobile-friendly and responsive layout.', key: 'responsiveLayout' },
-        { label: 'Number of Pages\nex: Home, About Us, Contact Us, etc.', key: 'numPages' },
+        { label: 'Number of Pages ex: Home, About Us, Contact Us, etc.', key: 'numPages' },
         { label: 'Number of Product Listing', key: 'numProducts' },
         { label: 'Search Engine Optimization (SEO)', key: 'seoOptimization' },
         { label: 'Personalised Admin Dashboard', key: 'adminDashboard' },
@@ -132,7 +134,12 @@ const Pricing = () => {
                                     <th key={idx} className={`${tier.color} p-8 align-top w-1/4 transition-colors duration-500`}>
                                         <h3 className={`text-2xl font-bold mb-6 tracking-tight ${idx === 1 ? 'text-primary' : 'text-white'}`}>{tier.name}</h3>
                                         <div className={`${tier.priceBg} py-3 px-6 rounded-xl shadow-lg shadow-black/20 inline-block w-full max-w-[180px]`}>
-                                            <span className="text-lg font-bold text-white">{tier.price}</span>
+                                            <div className="flex flex-col items-center">
+                                                {tier.originalPrice && tier.isActive !== false && (
+                                                    <span className="text-xs text-white/50 line-through mb-1">{tier.originalPrice}</span>
+                                                )}
+                                                <span className="text-lg font-bold text-white leading-none">{tier.price}</span>
+                                            </div>
                                         </div>
                                     </th>
                                 ))}
@@ -175,15 +182,20 @@ const Pricing = () => {
                             )}
                             <div className={`${tier.color} p-8 text-center border-b border-white/5`}>
                                 <h3 className={`text-2xl font-black mb-4 tracking-tight ${idx === 1 ? 'text-primary' : 'text-white'}`}>{tier.name}</h3>
-                                <div className={`${tier.priceBg} py-3 px-8 rounded-2xl shadow-xl inline-block`}>
-                                    <span className="text-xl font-black text-white">{tier.price}</span>
+                                <div className={`${tier.priceBg} py-4 px-8 rounded-2xl shadow-xl inline-block`}>
+                                    <div className="flex flex-col items-center">
+                                        {tier.originalPrice && tier.isActive !== false && (
+                                            <span className="text-xs text-white/50 line-through mb-1">{tier.originalPrice}</span>
+                                        )}
+                                        <span className="text-xl font-black text-white leading-none">{tier.price}</span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="p-8 space-y-6">
                                 {dynamicFeatures.map((feature, fIdx) => (
-                                    <div key={fIdx} className="flex items-start justify-between space-x-4">
-                                        <span className="text-sm text-gray-400 font-medium leading-tight">{feature.label.replace('\n', ' ')}</span>
-                                        <div className={`text-sm font-bold shrink-0 ${idx === 0 ? 'text-white/60' : (idx === 1 ? 'text-primary' : (idx === 2 ? 'text-secondary' : 'text-white'))}`}>
+                                    <div key={fIdx} className="flex flex-col space-y-2 pb-4 border-b border-white/5 last:border-0 last:pb-0">
+                                        <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">{feature.label}</span>
+                                        <div className={`text-sm font-bold ${idx === 0 ? 'text-white/60' : (idx === 1 ? 'text-primary' : (idx === 2 ? 'text-secondary' : 'text-white'))}`}>
                                             {idx === 0 ? feature.basic : (idx === 1 ? feature.standard : feature.premium)}
                                         </div>
                                     </div>

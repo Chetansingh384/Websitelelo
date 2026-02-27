@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
-import { Plus, Trash2, Package, X, CheckCircle, Edit2, Info, Check } from 'lucide-react';
+import { Plus, Trash2, Package, X, CheckCircle, Edit2, Info, Check, Eye, EyeOff } from 'lucide-react';
 
 const AdminPlans = () => {
     const [plans, setPlans] = useState([]);
@@ -12,6 +12,7 @@ const AdminPlans = () => {
     const [formData, setFormData] = useState({
         name: '',
         price: '',
+        originalPrice: '',
         deliveryTime: '',
         features: '', // For backward compatibility/simple list
         matrixValues: {
@@ -102,7 +103,9 @@ const AdminPlans = () => {
                 support: '',
                 blogMarketing: '',
                 animations: ''
-            }
+            },
+            originalPrice: plan.originalPrice || '',
+            isActive: plan.isActive !== undefined ? plan.isActive : true
         });
         setShowModal(true);
     };
@@ -124,7 +127,9 @@ const AdminPlans = () => {
                 support: '1 Month',
                 blogMarketing: 'N/A',
                 animations: 'N/A'
-            }
+            },
+            originalPrice: '',
+            isActive: true
         });
     };
 
@@ -169,6 +174,8 @@ const AdminPlans = () => {
                 await addDoc(collection(db, 'plans'), {
                     name: p.name,
                     price: p.price,
+                    originalPrice: p.name === 'Basic' ? '₹ 19,999 /-' : (p.name === 'Standard' ? '₹ 24,999 /-' : '₹ 34,999 /-'),
+                    isActive: true,
                     deliveryTime: p.deliveryTime,
                     features: [],
                     matrixValues: matrixFields.reduce((acc, f) => ({ ...acc, [f.key]: defaultMatrix[f.key]?.[p.idx] || '' }), {}),
@@ -207,17 +214,29 @@ const AdminPlans = () => {
         try {
             if (planId) {
                 await updateDoc(doc(db, 'plans', planId), { price: value, updatedAt: serverTimestamp() });
-            } else {
-                const base = defaultTiers[idx] || { name: 'New Plan', price: '₹ 0 /-' };
-                await addDoc(collection(db, 'plans'), {
-                    name: base.name,
-                    price: value,
-                    createdAt: serverTimestamp(),
-                    matrixValues: matrixFields.reduce((acc, f) => ({ ...acc, [f.key]: defaultMatrix[f.key]?.[idx] || '' }), {})
-                });
             }
         } catch (err) {
             console.error('Error updating price:', err);
+        }
+    };
+
+    const handleOriginalPriceUpdate = async (planId, value) => {
+        try {
+            if (planId) {
+                await updateDoc(doc(db, 'plans', planId), { originalPrice: value, updatedAt: serverTimestamp() });
+            }
+        } catch (err) {
+            console.error('Error updating original price:', err);
+        }
+    };
+
+    const handleToggleActive = async (planId, currentState) => {
+        try {
+            if (planId) {
+                await updateDoc(doc(db, 'plans', planId), { isActive: !currentState, updatedAt: serverTimestamp() });
+            }
+        } catch (err) {
+            console.error('Error toggling active state:', err);
         }
     };
 
@@ -227,16 +246,6 @@ const AdminPlans = () => {
                 await updateDoc(doc(db, 'plans', planId), {
                     [`matrixValues.${fieldKey}`]: value,
                     updatedAt: serverTimestamp()
-                });
-            } else {
-                const base = defaultTiers[idx] || { name: 'New Plan', price: '₹ 0 /-' };
-                const initialMatrix = matrixFields.reduce((acc, f) => ({ ...acc, [f.key]: defaultMatrix[f.key]?.[idx] || '' }), {});
-                initialMatrix[fieldKey] = value;
-                await addDoc(collection(db, 'plans'), {
-                    name: base.name,
-                    price: base.price,
-                    createdAt: serverTimestamp(),
-                    matrixValues: initialMatrix
                 });
             }
         } catch (err) {
@@ -300,9 +309,18 @@ const AdminPlans = () => {
                                                 type="text"
                                                 defaultValue={plan.name}
                                                 onBlur={(e) => handleNameUpdate(plan._id, e.target.value, idx)}
-                                                className={`bg-transparent border-none text-center text-2xl font-bold mb-4 tracking-tight w-full outline-none focus:ring-1 focus:ring-white/20 rounded ${style.accentTask}`}
+                                                className={`bg-transparent border-none text-center text-2xl font-bold mb-2 tracking-tight w-full outline-none focus:ring-1 focus:ring-white/20 rounded ${style.accentTask}`}
                                             />
-                                            <div className={`${style.priceBg} py-3 px-6 rounded-xl shadow-lg shadow-black/20 inline-block w-full max-w-[180px]`}>
+                                            <div className="mb-4 w-full max-w-[150px]">
+                                                <input
+                                                    type="text"
+                                                    defaultValue={plan.originalPrice}
+                                                    placeholder="Original Price"
+                                                    onBlur={(e) => handleOriginalPriceUpdate(plan._id, e.target.value)}
+                                                    className="bg-transparent border-none text-center text-xs text-white/50 line-through w-full outline-none focus:ring-1 focus:ring-white/10 rounded"
+                                                />
+                                            </div>
+                                            <div className={`${style.priceBg} py-3 px-6 rounded-xl shadow-lg shadow-black/20 inline-block w-full max-w-[180px] mb-4`}>
                                                 <input
                                                     type="text"
                                                     defaultValue={plan.price}
@@ -310,15 +328,25 @@ const AdminPlans = () => {
                                                     className="bg-transparent border-none text-center text-lg font-bold text-white w-full outline-none focus:ring-1 focus:ring-white/30 rounded"
                                                 />
                                             </div>
-                                            {plan._id && (
+
+                                            <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                                 <button
-                                                    onClick={() => handleDelete(plan._id)}
-                                                    className="mt-6 p-2 text-white/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
-                                                    title="Delete Plan"
+                                                    onClick={() => handleToggleActive(plan._id, plan.isActive)}
+                                                    className={`p-2 rounded-lg transition-colors ${plan.isActive !== false ? 'text-green-500 hover:bg-green-500/10' : 'text-gray-500 hover:bg-gray-500/10'}`}
+                                                    title={plan.isActive !== false ? 'Hide Original Price' : 'Show Original Price'}
                                                 >
-                                                    <Trash2 size={16} />
+                                                    {plan.isActive !== false ? <Eye size={18} /> : <EyeOff size={18} />}
                                                 </button>
-                                            )}
+                                                {plan._id && (
+                                                    <button
+                                                        onClick={() => handleDelete(plan._id)}
+                                                        className="p-2 text-white/20 hover:text-red-500 transition-colors"
+                                                        title="Delete Plan"
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </th>
                                 );
