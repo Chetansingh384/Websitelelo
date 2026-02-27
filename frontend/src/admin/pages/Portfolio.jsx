@@ -9,9 +9,27 @@ import { Plus, Trash2, X, Save, ImageIcon, ExternalLink, Edit2, Check, Link } fr
 // ─── Local portfolio images (from /public/images/portfolio/) ───────────────
 // These are the actual project screenshots placed in the public folder.
 const LOCAL_IMAGES = [
-    { filename: 'SIHALI JAGEER.jpg', defaultTitle: 'Sihali Jageer', defaultCategory: 'Fashion E-Commerce' },
-    { filename: 'Indigo Amour.jpg', defaultTitle: 'Indigo Amour', defaultCategory: 'Sustainable Fashion' },
-    { filename: 'Poshak.jpg', defaultTitle: 'Poshak Chikan Studio', defaultCategory: 'Ethnic Wear Store' },
+    {
+        filename: 'SIHALI JAGEER.jpg',
+        defaultTitle: 'Sihali Jageer',
+        defaultCategory: 'E-COMMERCE',
+        defaultProjectUrl: 'https://sihalijageer.in/?fbclid=PAZXh0bgNhZW0CMTEAAaYnrB6KE3FtmCHqbhjOhCVJWM7a1zWg23Dhpp--xtrM__-WGm1JaoiiukA_aem_Q5nIsjY4M4IVDaFAwYwKjg',
+        defaultDescription: 'Premium lifestyle and fashion website showcasing traditional heritage. A comprehensive e-commerce platform offering luxury traditional wear with a focus on artisanal craftsmanship and cultural elegance. Discover exquisite collections that blend history with contemporary style.'
+    },
+    {
+        filename: 'Indigo Amour.jpg',
+        defaultTitle: 'Indigo Amour',
+        defaultCategory: 'E-COMMERCE',
+        defaultProjectUrl: 'https://www.indigo-amour.org/',
+        defaultDescription: 'E-commerce platform for curated indigo products and sustainable fashion. Discover eco-friendly apparel and accessories crafted with natural dyes, designed for the modern conscious shopper. Celebrating the timeless beauty of indigo through ethical production and artistic expression.'
+    },
+    {
+        filename: 'Poshak.jpg',
+        defaultTitle: 'Poshak Chikan Studio',
+        defaultCategory: 'E-COMMERCE',
+        defaultProjectUrl: 'https://poshakchikanstudio.com/?srsltid=AfmBOopaWI7TcTp_0vPSWZkGrfRIxAMSl-1A24xG2pXMzGLgPcGX8LKd',
+        defaultDescription: 'Traditional Chikan embroidery showcase and online store. Explore a wide range of authentic hand-crafted ethnic wear with global shipping and secure payments. Dedicated to preserving the art of Lakhnavi Chikan work for the modern wardrobe.'
+    },
 ];
 
 const cleanFilename = (raw) => {
@@ -34,8 +52,8 @@ const LocalImageCard = ({ img, existingDoc }) => {
     const [fields, setFields] = useState({
         title: existingDoc?.title || img.defaultTitle,
         category: existingDoc?.category || img.defaultCategory,
-        description: existingDoc?.description || '',
-        projectUrl: existingDoc?.projectUrl || '',
+        description: existingDoc?.description || img.defaultDescription || '',
+        projectUrl: existingDoc?.projectUrl || img.defaultProjectUrl || '',
     });
 
     const docId = `local_${img.filename.replace(/[^a-zA-Z0-9]/g, '_')}`;
@@ -69,8 +87,8 @@ const LocalImageCard = ({ img, existingDoc }) => {
             setFields({
                 title: img.defaultTitle,
                 category: img.defaultCategory,
-                description: '',
-                projectUrl: '',
+                description: img.defaultDescription || '',
+                projectUrl: img.defaultProjectUrl || '',
             });
             setEditing(true);
         } catch (err) {

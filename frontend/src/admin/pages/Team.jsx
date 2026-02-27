@@ -107,7 +107,7 @@ const AdminTeam = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.image) {
-            alert('Please provide an image URL or fetch from LinkedIn/GitHub first!');
+            alert('Please provide an image URL or fetch from GitHub first!');
             return;
         }
         setLoading(true);
@@ -129,7 +129,7 @@ const AdminTeam = () => {
             }
 
             if (!finalData.image) {
-                alert('Please provide a photo or a GitHub/LinkedIn profile!');
+                alert('Please provide a photo or a GitHub profile!');
                 setLoading(false);
                 return;
             }
@@ -304,24 +304,13 @@ const AdminTeam = () => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">LinkedIn Profile (Auto-Fetch Photo)</label>
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">LinkedIn Profile</label>
                                 <div className="flex space-x-2">
                                     <input
                                         type="text"
                                         value={formData.socials.linkedin}
                                         onChange={(e) => setFormData({ ...formData, socials: { ...formData.socials, linkedin: e.target.value } })}
-                                        onBlur={() => {
-                                            const url = formData.socials.linkedin;
-                                            const match = url.match(/linkedin\.com\/in\/([a-zA-Z0-9_-]+)/);
-                                            if (match && match[1]) {
-                                                const username = match[1];
-                                                setFormData({ ...formData, image: `https://unavatar.io/linkedin/${username}?fallback=https://i.pravatar.cc/150?u=${username}` });
-                                            } else if (url && url.includes('linkedin.com/in/')) {
-                                                const username = url.split('linkedin.com/in/')[1].split('/')[0];
-                                                setFormData({ ...formData, image: formData.image || `https://unavatar.io/linkedin/${username}` });
-                                            }
-                                        }}
-                                        className="w-full bg-slate-50 dark:bg-[#0a0f1d] border border-gray-100 dark:border-white/10 rounded-2xl px-4 py-3 dark:text-white outline-none"
+                                        className="w-full bg-slate-50 dark:bg-[#0a0f1d] border border-gray-100 dark:border-white/10 rounded-2xl px-4 py-3 dark:text-white outline-none focus:border-primary/50 transition-colors"
                                         placeholder="https://linkedin.com/in/username"
                                     />
                                 </div>
