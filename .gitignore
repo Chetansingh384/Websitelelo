@@ -1,0 +1,20 @@
+node_modules/
+.env
+dist/
+.DS_Store
+*.local
+.vscode/
+
+# Build artifacts
+.next/
+build/
+bin/
+obj/
+
+# Vite
+frontend/node_modules/
+admin/node_modules/
+frontend/dist/
+admin/dist/
+.vercel
+.env*.local
