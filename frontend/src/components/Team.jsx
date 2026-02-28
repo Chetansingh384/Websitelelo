@@ -28,29 +28,7 @@ const Team = () => {
             if (!import.meta.env.VITE_FIREBASE_API_KEY) {
                 console.warn('Firebase API Key missing. Showing dummy fallback data.');
                 // Trigger fallback immediately
-                setTeam([
-                    {
-                        name: "Chetan Singh Chouhan",
-                        role: "Founder",
-                        bio: "I lead the vision behind building purposeful digital experiences transforming ideas into scalable, high-performing websites aligned with clear business goals. By combining strategy, thoughtful design, and strong engineering principles, I focus on delivering platforms that create long-term value and measurable growth.",
-                        socials: { linkedin: "https://www.linkedin.com/in/chetan-singh-chouhan-/", github: "https://github.com/Chetansingh384" },
-                        image: "https://github.com/Chetansingh384.png"
-                    },
-                    {
-                        name: "Abishek Kumar Thurvas",
-                        role: "Co-Founder",
-                        bio: "As a Co-Founder, I focus on turning vision into execution streamlining strategy, strengthening operations, and ensuring every project is delivered with precision and purpose. I work closely across teams to maintain quality, drive innovation, and convert ambitious ideas into meaningful digital outcomes.",
-                        socials: { linkedin: "https://www.linkedin.com/in/abishek-kumar-thurvas/", github: "https://github.com/iamabishek" },
-                        image: "https://github.com/iamabishek.png"
-                    },
-                    {
-                        name: "Aman Choudhary",
-                        role: "Full Stack Developer",
-                        bio: "As a Full Stack Developer, I contribute across the entire development lifecycle, building responsive user interfaces while building secure and scalable backend systems. I ensure seamless integration between design and functionality, delivering reliable, high-performance digital solutions aligned with project goals.",
-                        socials: { linkedin: "https://www.linkedin.com/in/amanchoudhary86/", github: "https://github.com/amanchoudhary86" },
-                        image: "https://github.com/amanchoudhary86.png"
-                    }
-                ]);
+                setTeam([]);
                 setLoading(false);
                 return;
             }
@@ -66,56 +44,12 @@ const Team = () => {
                     setTeam(sortMembers(teamData));
                 } else {
                     // Fallback dummy data if collection is empty
-                    setTeam([
-                        {
-                            name: "Chetan Singh Chouhan",
-                            role: "Founder",
-                            bio: "I lead the vision behind building purposeful digital experiences transforming ideas into scalable, high-performing websites aligned with clear business goals. By combining strategy, thoughtful design, and strong engineering principles, I focus on delivering platforms that create long-term value and measurable growth.",
-                            socials: { linkedin: "https://www.linkedin.com/in/chetan-singh-chouhan-/", github: "https://github.com/Chetansingh384" },
-                            image: "https://github.com/Chetansingh384.png"
-                        },
-                        {
-                            name: "Abishek Kumar Thurvas",
-                            role: "Co-Founder",
-                            bio: "As a Co-Founder, I focus on turning vision into execution streamlining strategy, strengthening operations, and ensuring every project is delivered with precision and purpose. I work closely across teams to maintain quality, drive innovation, and convert ambitious ideas into meaningful digital outcomes.",
-                            socials: { linkedin: "https://www.linkedin.com/in/abishek-kumar-thurvas/", github: "https://github.com/iamabishek" },
-                            image: "https://github.com/iamabishek.png"
-                        },
-                        {
-                            name: "Aman Choudhary",
-                            role: "Full Stack Developer",
-                            bio: "As a Full Stack Developer, I contribute across the entire development lifecycle, building responsive user interfaces while building secure and scalable backend systems. I ensure seamless integration between design and functionality, delivering reliable, high-performance digital solutions aligned with project goals.",
-                            socials: { linkedin: "https://www.linkedin.com/in/amanchoudhary86/", github: "https://github.com/amanchoudhary86" },
-                            image: "https://github.com/amanchoudhary86.png"
-                        }
-                    ]);
+                    setTeam([]);
                 }
             } catch (err) {
                 console.error('Error fetching team:', err);
                 // Fallback dummy data on error
-                setTeam([
-                    {
-                        name: "Chetan Singh Chouhan",
-                        role: "Founder",
-                        bio: "I lead the vision behind building purposeful digital experiences transforming ideas into scalable, high-performing websites aligned with clear business goals. By combining strategy, thoughtful design, and strong engineering principles, I focus on delivering platforms that create long-term value and measurable growth.",
-                        socials: { linkedin: "https://www.linkedin.com/in/chetan-singh-chouhan-/", github: "https://github.com/Chetansingh384" },
-                        image: "https://github.com/Chetansingh384.png"
-                    },
-                    {
-                        name: "Abishek Kumar Thurvas",
-                        role: "Co-Founder",
-                        bio: "As a Co-Founder, I focus on turning vision into execution streamlining strategy, strengthening operations, and ensuring every project is delivered with precision and purpose. I work closely across teams to maintain quality, drive innovation, and convert ambitious ideas into meaningful digital outcomes.",
-                        socials: { linkedin: "https://www.linkedin.com/in/abishek-kumar-thurvas/", github: "https://github.com/iamabishek" },
-                        image: "https://github.com/iamabishek.png"
-                    },
-                    {
-                        name: "Aman Choudhary",
-                        role: "Full Stack Developer",
-                        bio: "As a Full Stack Developer, I contribute across the entire development lifecycle, building responsive user interfaces while building secure and scalable backend systems. I ensure seamless integration between design and functionality, delivering reliable, high-performance digital solutions aligned with project goals.",
-                        socials: { linkedin: "https://www.linkedin.com/in/amanchoudhary86/", github: "https://github.com/amanchoudhary86" },
-                        image: "https://github.com/amanchoudhary86.png"
-                    }
-                ]);
+                setTeam([]);
             } finally {
                 setLoading(false);
             }

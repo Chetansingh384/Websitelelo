@@ -21,9 +21,9 @@ const Pricing = () => {
     }, []);
 
     const defaultTiers = [
-        { name: 'Basic', price: '₹ 13,999 /-', originalPrice: '₹ 19,999 /-', color: 'bg-white/5', priceBg: 'bg-white/10', priceText: 'text-white', accent: 'text-gray-400', isActive: true },
-        { name: 'Standard', price: '₹ 17,999 /-', originalPrice: '₹ 24,999 /-', color: 'bg-primary/20', priceBg: 'bg-primary', priceText: 'text-white', accent: 'text-primary', isActive: true },
-        { name: 'Premium', price: '₹ 24,999 /-', originalPrice: '₹ 34,999 /-', color: 'bg-secondary/20', priceBg: 'bg-secondary', priceText: 'text-white', accent: 'text-secondary', isActive: true }
+        { name: 'Basic', price: '₹ 13,999 /-', color: 'bg-white/5', priceBg: 'bg-white/10', priceText: 'text-white', accent: 'text-gray-400', isActive: true },
+        { name: 'Standard', price: '₹ 17,999 /-', color: 'bg-primary/20', priceBg: 'bg-primary', priceText: 'text-white', accent: 'text-primary', isActive: true },
+        { name: 'Premium', price: '₹ 24,999 /-', color: 'bg-secondary/20', priceBg: 'bg-secondary', priceText: 'text-white', accent: 'text-secondary', isActive: true }
     ];
 
     // Position 0 = Basic, 1 = Standard, 2 = Premium — always enforce correct names by slot
