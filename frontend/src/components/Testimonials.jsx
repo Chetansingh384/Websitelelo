@@ -58,7 +58,7 @@ const Testimonials = () => {
     const sideCards = testimonials.filter((_, i) => i !== activeIdx).slice(0, 4);
 
     return (
-        <section id="testimonials" className="py-28 bg-slate-50 dark:bg-[#07091a] overflow-hidden relative transition-colors duration-300">
+        <section id="testimonials" className="py-20 md:py-28 bg-slate-50 dark:bg-[#07091a] overflow-hidden relative transition-colors duration-300">
 
             {/* Background blobs */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4 pointer-events-none" />
@@ -67,14 +67,14 @@ const Testimonials = () => {
             <div className="container mx-auto px-6 relative z-10 max-w-7xl">
 
                 {/* Section Header */}
-                <div className="text-center mb-20">
+                <div className="text-center mb-16 md:mb-20">
                     <div className="inline-flex items-center gap-2 bg-primary/10 text-primary text-xs font-black uppercase tracking-widest px-4 py-2 rounded-full mb-6 border border-primary/20">
                         ★ Trusted by Real Clients
                     </div>
-                    <h2 className="text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
+                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-6 leading-tight">
                         What Our <span className="gradient-text">Clients Say</span>
                     </h2>
-                    <p className="text-slate-500 dark:text-gray-400 max-w-xl mx-auto text-lg">
+                    <p className="text-slate-500 dark:text-gray-400 max-w-xl mx-auto text-base md:text-lg">
                         Don't take our word for it — hear directly from the businesses we've helped grow online.
                     </p>
                 </div>
@@ -101,10 +101,10 @@ const Testimonials = () => {
                     <div className="lg:col-span-2">
                         <div
                             key={featured.id}
-                            className="bg-white dark:bg-gradient-to-br dark:from-[#111827] dark:to-[#0d1020] border border-gray-100 dark:border-white/10 rounded-[2.5rem] p-10 shadow-2xl shadow-black/10 relative overflow-hidden transition-all duration-500 min-h-[380px] flex flex-col justify-between"
+                            className="bg-white dark:bg-gradient-to-br dark:from-[#111827] dark:to-[#0d1020] border border-gray-100 dark:border-white/10 rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 shadow-2xl shadow-black/10 relative overflow-hidden transition-all duration-500 min-h-[350px] md:min-h-[380px] flex flex-col justify-between"
                         >
                             {/* Decorative quote */}
-                            <Quote className="absolute top-8 right-10 text-primary/10" size={100} strokeWidth={1} />
+                            <Quote className="absolute top-6 right-6 md:top-8 md:right-10 text-primary/10" size={60} md:size={100} strokeWidth={1} />
 
                             {/* Stars */}
                             <div className="flex gap-1 mb-6">
@@ -114,7 +114,7 @@ const Testimonials = () => {
                             </div>
 
                             {/* Message */}
-                            <p className="text-slate-700 dark:text-gray-200 text-xl leading-relaxed font-medium mb-10 relative z-10 flex-1">
+                            <p className="text-slate-700 dark:text-gray-200 text-lg md:text-xl leading-relaxed font-medium mb-10 relative z-10 flex-1">
                                 "{featured.message}"
                             </p>
 
@@ -170,8 +170,8 @@ const Testimonials = () => {
                         )}
                     </div>
 
-                    {/* Side Cards: 2x2 grid — stays compact beside featured card */}
-                    <div className="grid grid-cols-2 gap-3">
+                    {/* Side Cards: 2x2 grid — hidden on small screens, shows on large screens next to featured */}
+                    <div className="hidden lg:grid grid-cols-2 gap-3">
                         {sideCards.length > 0 ? sideCards.map((t) => (
                             <button
                                 key={t.id}
@@ -208,10 +208,10 @@ const Testimonials = () => {
                 </div>
 
                 {/* Bottom CTA Banner */}
-                <div className="mt-16 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-[2rem] p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="mt-16 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
                     <div>
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white mb-1">Ready to be our next success story?</h3>
-                        <p className="text-slate-500 dark:text-gray-400 text-sm">Join 50+ happy clients who trusted WebsiteLelo.</p>
+                        <h3 className="text-lg md:text-xl font-black text-slate-900 dark:text-white mb-1">Ready to be our next success story?</h3>
+                        <p className="text-slate-500 dark:text-gray-400 text-xs md:text-sm">Join 50+ happy clients who trusted WebsiteLelo.</p>
                     </div>
                     <a
                         href="#contact"
