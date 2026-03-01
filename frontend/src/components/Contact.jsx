@@ -59,10 +59,10 @@ const Contact = () => {
 
     return (
         <>
-            <section id="contact" className="py-24 relative overflow-hidden">
-                <div className="container mx-auto px-6 relative z-10">
-                    <div className="max-w-5xl mx-auto glass-card p-0 overflow-hidden flex flex-col md:flex-row shadow-2xl">
-                        <div className="bg-primary p-8 md:p-12 md:w-2/5 text-white">
+            <section id="contact" className="py-16 md:py-24 relative overflow-hidden">
+                <div className="container mx-auto px-4 md:px-6 relative z-10">
+                    <div className="max-w-5xl mx-auto glass-card !p-0 overflow-hidden flex flex-col md:flex-row shadow-2xl">
+                        <div className="bg-primary p-6 md:p-12 md:w-2/5 text-white">
                             <h2 className="text-3xl font-bold mb-8">Get In Touch</h2>
                             <p className="mb-12 text-blue-100 opacity-80 leading-relaxed font-medium">
                                 Ready to take your business online? Fill out the form and we'll get back to you within 24 hours.
@@ -110,7 +110,7 @@ const Contact = () => {
                             </div>
                         </div>
 
-                        <div className="p-8 md:p-12 md:w-3/5 bg-white/5 backdrop-blur-sm">
+                        <div className="p-6 md:p-12 md:w-3/5 bg-white/5 backdrop-blur-sm">
                             <form onSubmit={handleSubmit} className="space-y-6 text-slate-800 dark:text-white">
                                 <div className="grid md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
