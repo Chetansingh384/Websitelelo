@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Check, Info, Loader2 } from 'lucide-react';
 import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc } from 'firebase/firestore';
 
 const Pricing = () => {
     const [plans, setPlans] = useState([]);
@@ -18,7 +18,7 @@ const Pricing = () => {
 
         const qPlans = query(collection(db, 'plans'), orderBy('createdAt', 'asc'));
         const unsubPlans = onSnapshot(qPlans, (snapshot) => {
-            const plansData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            const plansData = snapshot.docs.filter(d => d.id !== 'matrix_features_list').map(d => ({ id: d.id, ...d.data() }));
             setPlans(plansData.slice(0, 3));
             plansLoaded = true;
             checkLoading();
@@ -28,10 +28,12 @@ const Pricing = () => {
             checkLoading();
         });
 
-        const qFeatures = query(collection(db, 'matrix_features'), orderBy('order', 'asc'));
-        const unsubFeatures = onSnapshot(qFeatures, (snapshot) => {
-            const featuresData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-            setMatrixFeatures(featuresData);
+        const unsubFeatures = onSnapshot(doc(db, 'plans', 'matrix_features_list'), (docSnap) => {
+            if (docSnap.exists() && docSnap.data().features) {
+                setMatrixFeatures(docSnap.data().features);
+            } else {
+                setMatrixFeatures([]);
+            }
             featuresLoaded = true;
             checkLoading();
         }, (err) => {

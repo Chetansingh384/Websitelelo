@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc, getDocs } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc, getDocs, getDoc } from 'firebase/firestore';
 import { Plus, Trash2, Package, X, CheckCircle, Edit2, Info, Check, Eye, EyeOff } from 'lucide-react';
 
 const AdminPlans = () => {
@@ -34,8 +34,9 @@ const AdminPlans = () => {
     useEffect(() => {
         const autoSeedFeatures = async () => {
             try {
-                const snap = await getDocs(query(collection(db, 'matrix_features')));
-                if (snap.empty) {
+                const docRef = doc(db, 'plans', 'matrix_features_list');
+                const snap = await getDoc(docRef);
+                if (!snap.exists()) {
                     const defaultFeatures = [
                         { key: 'customDesign', label: 'Customized design', order: 1 },
                         { key: 'paymentIntegration', label: 'Payment Method Integration', order: 2 },
@@ -49,9 +50,7 @@ const AdminPlans = () => {
                         { key: 'blogMarketing', label: 'Blog & Email Marketing', order: 10 },
                         { key: 'animations', label: 'Animations and Effects', order: 11 }
                     ];
-                    for (const f of defaultFeatures) {
-                        await setDoc(doc(db, 'matrix_features', f.key), f);
-                    }
+                    await setDoc(docRef, { features: defaultFeatures });
                 }
             } catch (err) {
                 console.error("Auto-seed error:", err);
@@ -59,12 +58,11 @@ const AdminPlans = () => {
         };
         autoSeedFeatures();
 
-        const qFeatures = query(collection(db, 'matrix_features'), orderBy('order', 'asc'));
-        const unsubscribeFeatures = onSnapshot(qFeatures, (snapshot) => {
-            if (snapshot.docs.length === 0) {
+        const unsubscribeFeatures = onSnapshot(doc(db, 'plans', 'matrix_features_list'), (docSnap) => {
+            if (!docSnap.exists() || !docSnap.data().features) {
                 setMatrixFields([]);
             } else {
-                setMatrixFields(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+                setMatrixFields(docSnap.data().features);
             }
         });
         return () => unsubscribeFeatures();
@@ -73,7 +71,7 @@ const AdminPlans = () => {
     useEffect(() => {
         const q = query(collection(db, 'plans'), orderBy('createdAt', 'asc'));
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            const plansData = snapshot.docs.map(doc => ({
+            const plansData = snapshot.docs.filter(doc => doc.id !== 'matrix_features_list').map(doc => ({
                 _id: doc.id,
                 ...doc.data()
             }));
@@ -200,14 +198,8 @@ const AdminPlans = () => {
                 { key: 'animations', label: 'Animations and Effects', order: 11 }
             ];
 
-            // Delete existing features to overwrite
-            for (const field of matrixFields) {
-                if (field.id) await deleteDoc(doc(db, 'matrix_features', field.id));
-            }
-
-            for (const f of defaultFeatures) {
-                await setDoc(doc(db, 'matrix_features', f.key), f);
-            }
+            // Overwrite existing features doc
+            await setDoc(doc(db, 'plans', 'matrix_features_list'), { features: defaultFeatures });
 
             // Delete existing plans
             for (const plan of plans) {
@@ -327,21 +319,19 @@ const AdminPlans = () => {
 
         const order = matrixFields.length > 0 ? Math.max(...matrixFields.map(f => f.order || 0)) + 1 : 1;
         try {
-            await setDoc(doc(db, 'matrix_features', key), {
-                key,
-                label,
-                order
-            });
+            const newFeatures = [...matrixFields, { key, label, order }];
+            await setDoc(doc(db, 'plans', 'matrix_features_list'), { features: newFeatures });
         } catch (err) {
             console.error('Error adding row:', err);
             alert('Error adding row.');
         }
     };
 
-    const handleDeleteMatrixRow = async (fieldId) => {
+    const handleDeleteMatrixRow = async (fieldKey) => {
         if (!window.confirm('Delete this row?')) return;
         try {
-            await deleteDoc(doc(db, 'matrix_features', fieldId));
+            const newFeatures = matrixFields.filter(f => f.key !== fieldKey);
+            await setDoc(doc(db, 'plans', 'matrix_features_list'), { features: newFeatures });
         } catch (err) {
             console.error('Error deleting row:', err);
         }
@@ -492,9 +482,9 @@ const AdminPlans = () => {
                                     );
                                 })}
                                 <td className="bg-white/5 border-l border-white/10 opacity-20 relative group-hover:opacity-100 transition-opacity">
-                                    {field.id && (
+                                    {field.key && (
                                         <button
-                                            onClick={() => handleDeleteMatrixRow(field.id)}
+                                            onClick={() => handleDeleteMatrixRow(field.key)}
                                             className="absolute inset-0 flex items-center justify-center text-white/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                                             title="Delete Row"
                                         >
