@@ -460,7 +460,7 @@ const AdminPlans = () => {
                                     const cellColor = cellColors[idx] || cellColors[idx % 3];
                                     const textStyle = textStyles[idx] || textStyles[idx % 3];
                                     const fontWeight = fontWeights[idx] || fontWeights[idx % 3];
-                                    const val = plan.matrixValues?.[field.key] || defaultMatrix[field.key][idx] || '';
+                                    const val = plan.matrixValues?.[field.key] || (defaultMatrix[field.key] ? defaultMatrix[field.key][idx] : '');
                                     const isCheck = val.toLowerCase() === 'check';
 
                                     return (
