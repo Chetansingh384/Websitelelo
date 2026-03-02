@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc } from 'firebase/firestore';
 import { Plus, Trash2, Package, X, CheckCircle, Edit2, Info, Check, Eye, EyeOff } from 'lucide-react';
 
 const AdminPlans = () => {
@@ -9,6 +9,7 @@ const AdminPlans = () => {
     const [loading, setLoading] = useState(false);
     const [editId, setEditId] = useState(null);
     const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'matrix'
+    const [matrixFields, setMatrixFields] = useState([]);
     const [formData, setFormData] = useState({
         name: '',
         price: '',
@@ -30,19 +31,17 @@ const AdminPlans = () => {
         }
     });
 
-    const matrixFields = [
-        { key: 'customDesign', label: 'Customized design' },
-        { key: 'paymentIntegration', label: 'Payment Method Integration' },
-        { key: 'responsiveLayout', label: 'Mobile-friendly Responsive Layout' },
-        { key: 'numPages', label: 'Number of Pages\n(Home, About, Contact, etc.)' },
-        { key: 'numProducts', label: 'Number of Product Listing' },
-        { key: 'seoOptimization', label: 'SEO Optimization' },
-        { key: 'adminDashboard', label: 'Personalised Admin Dashboard' },
-        { key: 'analytics', label: 'Analytics Integration' },
-        { key: 'support', label: 'Support and Maintenance' },
-        { key: 'blogMarketing', label: 'Blog & Email Marketing' },
-        { key: 'animations', label: 'Animations and Effects' }
-    ];
+    useEffect(() => {
+        const qFeatures = query(collection(db, 'matrix_features'), orderBy('order', 'asc'));
+        const unsubscribeFeatures = onSnapshot(qFeatures, (snapshot) => {
+            if (snapshot.docs.length === 0) {
+                setMatrixFields([]);
+            } else {
+                setMatrixFields(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+            }
+        });
+        return () => unsubscribeFeatures();
+    }, []);
 
     useEffect(() => {
         const q = query(collection(db, 'plans'), orderBy('createdAt', 'asc'));
@@ -160,6 +159,29 @@ const AdminPlans = () => {
     const seedDefaultPlans = async () => {
         if (!window.confirm('This will reset ALL plans to the default values from the reference chart. Continue?')) return;
         try {
+            const defaultFeatures = [
+                { key: 'customDesign', label: 'Customized design', order: 1 },
+                { key: 'paymentIntegration', label: 'Payment Method Integration', order: 2 },
+                { key: 'responsiveLayout', label: 'Mobile-friendly Responsive Layout', order: 3 },
+                { key: 'numPages', label: 'Number of Pages\n(Home, About, Contact, etc.)', order: 4 },
+                { key: 'numProducts', label: 'Number of Product Listing', order: 5 },
+                { key: 'seoOptimization', label: 'SEO Optimization', order: 6 },
+                { key: 'adminDashboard', label: 'Personalised Admin Dashboard', order: 7 },
+                { key: 'analytics', label: 'Analytics Integration', order: 8 },
+                { key: 'support', label: 'Support and Maintenance', order: 9 },
+                { key: 'blogMarketing', label: 'Blog & Email Marketing', order: 10 },
+                { key: 'animations', label: 'Animations and Effects', order: 11 }
+            ];
+
+            // Delete existing features to overwrite
+            for (const field of matrixFields) {
+                if (field.id) await deleteDoc(doc(db, 'matrix_features', field.id));
+            }
+
+            for (const f of defaultFeatures) {
+                await setDoc(doc(db, 'matrix_features', f.key), f);
+            }
+
             // Delete existing plans
             for (const plan of plans) {
                 await deleteDoc(doc(db, 'plans', plan._id));
@@ -178,7 +200,7 @@ const AdminPlans = () => {
                     isActive: true,
                     deliveryTime: p.deliveryTime,
                     features: [],
-                    matrixValues: matrixFields.reduce((acc, f) => ({ ...acc, [f.key]: defaultMatrix[f.key]?.[p.idx] || '' }), {}),
+                    matrixValues: defaultFeatures.reduce((acc, f) => ({ ...acc, [f.key]: defaultMatrix[f.key]?.[p.idx] || '' }), {}),
                     createdAt: serverTimestamp(),
                 });
                 // small delay to preserve order
@@ -266,6 +288,37 @@ const AdminPlans = () => {
         if (plan) return { ...plan, _isDefault: false };
         return { ...defaultTiers[idx], _isDefault: true };
     });
+
+    const handleAddMatrixRow = async () => {
+        const label = prompt('Enter New Row/Feature Name:');
+        if (!label) return;
+        
+        let key = label.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!key) {
+            key = 'feature_' + Date.now();
+        }
+        
+        const order = matrixFields.length > 0 ? Math.max(...matrixFields.map(f => f.order || 0)) + 1 : 1;
+        try {
+            await setDoc(doc(db, 'matrix_features', key), {
+                key,
+                label,
+                order
+            });
+        } catch (err) {
+            console.error('Error adding row:', err);
+            alert('Error adding row.');
+        }
+    };
+
+    const handleDeleteMatrixRow = async (fieldId) => {
+        if (!window.confirm('Delete this row?')) return;
+        try {
+            await deleteDoc(doc(db, 'matrix_features', fieldId));
+        } catch (err) {
+            console.error('Error deleting row:', err);
+        }
+    };
 
     return (
         <div className="p-8 pb-32 min-h-screen bg-white dark:bg-[#0a0f1d] overflow-hidden">
@@ -411,9 +464,30 @@ const AdminPlans = () => {
                                         </td>
                                     );
                                 })}
-                                <td className="bg-white/5 border-l border-white/10 opacity-20"></td>
+                                <td className="bg-white/5 border-l border-white/10 opacity-20 relative group-hover:opacity-100 transition-opacity">
+                                    {field.id && (
+                                        <button
+                                            onClick={() => handleDeleteMatrixRow(field.id)}
+                                            className="absolute inset-0 flex items-center justify-center text-white/20 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                            title="Delete Row"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    )}
+                                </td>
                             </tr>
                         ))}
+                        <tr>
+                            <td colSpan={displayPlans.length + 2} className="p-4 bg-white/[0.02]">
+                                <button
+                                    onClick={handleAddMatrixRow}
+                                    className="px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-all text-sm font-bold flex items-center justify-center space-x-2 mx-auto w-full max-w-sm border border-dashed border-white/20 hover:border-white/40"
+                                >
+                                    <Plus size={16} />
+                                    <span>Add Row</span>
+                                </button>
+                            </td>
+                        </tr>
                     </tbody>
                 </table>
             </div>

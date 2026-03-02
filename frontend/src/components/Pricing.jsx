@@ -5,19 +5,45 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 const Pricing = () => {
     const [plans, setPlans] = useState([]);
+    const [matrixFeatures, setMatrixFeatures] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const q = query(collection(db, 'plans'), orderBy('createdAt', 'asc'));
-        const unsub = onSnapshot(q, (snapshot) => {
+        let plansLoaded = false;
+        let featuresLoaded = false;
+
+        const checkLoading = () => {
+            if (plansLoaded && featuresLoaded) setLoading(false);
+        };
+
+        const qPlans = query(collection(db, 'plans'), orderBy('createdAt', 'asc'));
+        const unsubPlans = onSnapshot(qPlans, (snapshot) => {
             const plansData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             setPlans(plansData.slice(0, 3));
-            setLoading(false);
+            plansLoaded = true;
+            checkLoading();
         }, (err) => {
             console.error('Error fetching plans:', err);
-            setLoading(false);
+            plansLoaded = true;
+            checkLoading();
         });
-        return () => unsub();
+
+        const qFeatures = query(collection(db, 'matrix_features'), orderBy('order', 'asc'));
+        const unsubFeatures = onSnapshot(qFeatures, (snapshot) => {
+            const featuresData = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            setMatrixFeatures(featuresData);
+            featuresLoaded = true;
+            checkLoading();
+        }, (err) => {
+            console.error('Error fetching features:', err);
+            featuresLoaded = true;
+            checkLoading();
+        });
+
+        return () => {
+            unsubPlans();
+            unsubFeatures();
+        };
     }, []);
 
     const defaultTiers = [
@@ -55,7 +81,7 @@ const Pricing = () => {
         return val;
     };
 
-    const featureRows = [
+    const featureRows = matrixFeatures.length > 0 ? matrixFeatures : [
         { label: 'Customized design', key: 'customDesign' },
         { label: 'Payment Method Integration', key: 'paymentIntegration' },
         { label: 'Mobile-friendly and responsive layout.', key: 'responsiveLayout' },
