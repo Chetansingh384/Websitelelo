@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp, updateDoc, setDoc, getDocs } from 'firebase/firestore';
 import { Plus, Trash2, Package, X, CheckCircle, Edit2, Info, Check, Eye, EyeOff } from 'lucide-react';
 
 const AdminPlans = () => {
@@ -32,6 +32,33 @@ const AdminPlans = () => {
     });
 
     useEffect(() => {
+        const autoSeedFeatures = async () => {
+            try {
+                const snap = await getDocs(query(collection(db, 'matrix_features')));
+                if (snap.empty) {
+                    const defaultFeatures = [
+                        { key: 'customDesign', label: 'Customized design', order: 1 },
+                        { key: 'paymentIntegration', label: 'Payment Method Integration', order: 2 },
+                        { key: 'responsiveLayout', label: 'Mobile-friendly Responsive Layout', order: 3 },
+                        { key: 'numPages', label: 'Number of Pages\n(Home, About, Contact, etc.)', order: 4 },
+                        { key: 'numProducts', label: 'Number of Product Listing', order: 5 },
+                        { key: 'seoOptimization', label: 'SEO Optimization', order: 6 },
+                        { key: 'adminDashboard', label: 'Personalised Admin Dashboard', order: 7 },
+                        { key: 'analytics', label: 'Analytics Integration', order: 8 },
+                        { key: 'support', label: 'Support and Maintenance', order: 9 },
+                        { key: 'blogMarketing', label: 'Blog & Email Marketing', order: 10 },
+                        { key: 'animations', label: 'Animations and Effects', order: 11 }
+                    ];
+                    for (const f of defaultFeatures) {
+                        await setDoc(doc(db, 'matrix_features', f.key), f);
+                    }
+                }
+            } catch (err) {
+                console.error("Auto-seed error:", err);
+            }
+        };
+        autoSeedFeatures();
+
         const qFeatures = query(collection(db, 'matrix_features'), orderBy('order', 'asc'));
         const unsubscribeFeatures = onSnapshot(qFeatures, (snapshot) => {
             if (snapshot.docs.length === 0) {
@@ -292,12 +319,12 @@ const AdminPlans = () => {
     const handleAddMatrixRow = async () => {
         const label = prompt('Enter New Row/Feature Name:');
         if (!label) return;
-        
+
         let key = label.toLowerCase().replace(/[^a-z0-9]/g, '');
         if (!key) {
             key = 'feature_' + Date.now();
         }
-        
+
         const order = matrixFields.length > 0 ? Math.max(...matrixFields.map(f => f.order || 0)) + 1 : 1;
         try {
             await setDoc(doc(db, 'matrix_features', key), {
